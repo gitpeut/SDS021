@@ -1,0 +1,36 @@
+#######################################
+# Syntax Coloring Map for SDS021
+# 
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+SDS021	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin			KEYWORD2
+workMode		KEYWORD2
+queryData		KEYWORD2
+setDeviceId		KEYWORD2
+sleepWork		KEYWORD2
+workPeriod		KEYWORD2
+firmwareVersion	KEYWORD2
+setDebug		KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+SDS021_REPORTMODE 	LITERAL1
+SDS021_QUERYMODE  	LITERAL1  
+SDS021_ASK			LITERAL1
+SDS21_SET			LITERAL1
+SDS021_SLEEPING		LITERAL1
+SDS021_WORKING		LITERAL1
+
+
