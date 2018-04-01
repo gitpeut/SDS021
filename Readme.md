@@ -4,7 +4,7 @@ Arduino library for dust Sensor SDS011 (Nova Fitness Co.,Ltd)
 This library uses SoftSerial to connect to the SDS011.  
 
 This library is based on the SDS011 library by ricki-z
-<a href="https:github.com/ricki-z/SDS011">https:github.com/ricki-z/SDS011</a>
+<a href="https://github.com/ricki-z/SDS011">https://github.com/ricki-z/SDS011</a>
 
 It is an attempt to implement the full serial protocol specified by Nova Fitness.
 
