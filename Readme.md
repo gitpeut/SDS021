@@ -81,7 +81,7 @@ class SDS021 {
  See also the example. When device wakes up, one read is enough.
  Subsequent reads will return the same value until the next workperiod.
  Current draw in between workperiods is around 16 mA, which is much higher
- than during sending the device to sleep.
+ than after sending the device to sleep by calling sleepWork.
 
 <h2>SDS021:firmwareVersion() datasheet (6)</h2>
 
