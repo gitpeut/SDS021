@@ -66,8 +66,10 @@ class SDS021 {
  depending on how it was set by this function ( by setting
  argument set to SDS021_SET), or how it was set before if argument
  set was set to SDS021_ASK.
-
-
+ 
+ When the device is working it draws around 60 mA. When sleeping,
+ laser and fan are turned off. Current drops to 1.8 mA.
+ See also the example sketch.
 
 <h2>SDS021::workPeriod() datasheet (5)</h2>
  
@@ -76,7 +78,10 @@ class SDS021 {
  device will sleep during the interval and become active 30 seconds 
  before the interval is reached. 
 
-
+ See also the example. When device wakes up, one read is enough.
+ Subsequent reads will return the same value until the next workperiod.
+ Current draw in between workperiods is around 16 mA, which is much higher
+ than during sending the device to sleep.
 
 <h2>SDS021:firmwareVersion() datasheet (6)</h2>
 
