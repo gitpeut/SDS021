@@ -1,6 +1,6 @@
 # SDS021  
 
-<img src="http://peut.org/Airoflot.jpg" />
+<img src="images/Airoflot.jpg" />
 
 Arduino library for dust Sensor SDS011 and SDS021 (Nova Fitness Co.,Ltd)  
 This library uses SoftSerial to connect to the SDS021.  
