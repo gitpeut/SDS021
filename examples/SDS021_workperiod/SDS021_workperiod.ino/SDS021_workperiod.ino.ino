@@ -37,10 +37,14 @@ void setup() {
   delay(10);
   
   nova.sleepWork(&asleep, SDS021_WORKING, SDS021_ASK );
-  if ( asleep != 0xFF )Serial.printf( "\n\nModule set to %s\n", asleep == SDS021_SLEEPING?"Sleep":"Work" ); 
+  if ( asleep != 0xFF ){
+    Serial.println("");Serial.print( "Module set to "); Serial.println( asleep == SDS021_SLEEPING?"Sleep":"Work" ); 
+  }
 
   nova.workMode( &workmode, SDS021_REPORTMODE, SDS021_SET);
-  if ( workmode != 0xFF )Serial.printf( "workmode set to %s\n", workmode == SDS021_REPORTMODE?"Reportmode":"Querymode" ); 
+  if ( workmode != 0xFF ){
+    Serial.print( "workmode set to "); Serial.println( workmode == SDS021_REPORTMODE?"Reportmode":"Querymode" ); 
+  }
 
   // According to the datasheet, the workperiod setting is presered over boots.
   // When playing, make sure to reset it afterwards, like here
@@ -48,9 +52,9 @@ void setup() {
   
   nova.workPeriod( &result, 2, SDS021_SET);
   if ( workmode != 0xFF ){
-    Serial.printf( "workperiod set to %d\n", result ); 
+    Serial.print( "workperiod set to "); Serial.println( result ); 
   }else{
-    Serial.printf( "workperiod not set %d\n", result ); 
+    Serial.print( "workperiod not set to "); Serial.println( result ); 
   }
 
 }
@@ -63,17 +67,19 @@ void loop() {
     for ( status = true; status;){
       
       nova.sleepWork(&result, SDS021_SLEEPING, SDS021_ASK );
-      if ( result != 0xFF )Serial.printf( "Module is %s\n", result == SDS021_SLEEPING?"asleep":"active" ); 
+      if ( result != 0xFF ){
+        Serial.println("");Serial.print( "Module is "); Serial.println( result == SDS021_SLEEPING?"asleep":"active" ); 
+      }
       if ( result == SDS021_SLEEPING ) break; 
 
       if ( count < 19 ){
-        Serial.printf("Wait for module to stabilize\n");
+        Serial.println("Wait for module to stabilize");
         delay(30*1000);
       }
           
       status = nova.queryData(&p10, &p25 );
 	    if ( status ) {
-         Serial.printf("ppm10 : %6.1f µg/m³ ppm2.5 : %6.1f µg/m³\n", p10, p25); 
+         Serial.print("ppm10 : "); Serial.print( p10,1 ); Serial.print(" µg/m³ ppm2.5 : "); Serial.print( p25,1); Serial.println(" µg/m³"); 
          delay(4 * 1000);
 	    }
 
@@ -82,32 +88,28 @@ void loop() {
       // statements. No need in collecting the same data over and over again.
       
       for ( result = SDS021_WORKING; result == SDS021_WORKING; ){
-        Serial.printf("Waiting for module to fall asleep\n"); 
-         //status = nova.queryData(&p10, &p25 );
-         //if ( status ) {
-         //  Serial.printf("ppm10 : %6.1f µg/m³ ppm2.5 : %6.1f µg/m³\n", p10, p25); 
-         //}
+        Serial.println("Waiting for module to fall asleep");         
         delay( 5 * 1000 );
         nova.sleepWork(&result, SDS021_SLEEPING, SDS021_ASK );
       }
       
-      Serial.printf("Module is asleep\n"); 
+      Serial.println("Module is asleep"); 
       break;  
     }
-    Serial.printf("Waiting for module to wake up (count remaining %d)\n", count); 
+    Serial.print("Waiting for module to wake up (count remaining "); Serial.println( count ); 
     delay(10 * 1000);
 }
     
   // after count loops, reset the workperiod to default, and delay forever.
     
   if ( count == 0 ){
-        Serial.printf("Set workPeriod to default zero, i.e. continuous\n");
+        Serial.println("Set workPeriod to default zero, i.e. continuous");
         nova.workPeriod( &result, 0, SDS021_SET);
-        Serial.printf("Set module to sleep\n");
+        Serial.println("Set module to sleep");
         nova.sleepWork( &result, SDS021_SLEEPING, SDS021_SET);          
   }
       
-Serial.printf("Doing nothing\n");
+Serial.println("Doing nothing");
 delay(1000);
 
   

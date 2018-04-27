@@ -44,7 +44,7 @@ bool status=false;
 	
 		for (uint8_t j = 0; j < 19; j++) {
 			sds_data->write( q[ j ] );
-			if( _debug)Serial.printf(" %02X",q[j]);
+			if( _debug)Serial.print(q[j], HEX);
 		}
 		sds_data->flush();
 	
@@ -60,7 +60,7 @@ bool status=false;
 				if( _debug)Serial.println("No data available, exiting.");
 				i = 0;
 				status = false;
-				if ( (q[2] == 6 && q[3] == 1 & q[4] == 1) ) { 
+				if ( (q[2] == 6 && q[3] == 1 && q[4] == 1) ) { 
 					// wake from sleep. Usually, immediately reporting is started without answer.
 					break;
 				}
@@ -69,23 +69,23 @@ bool status=false;
 		for( i=0, status=true, crc=0; sds_data->available() && i < 10; ++i) {
 			b[i] = sds_data->read();
 			if (i>1 && i < 8)crc += b[i];
-			if( _debug)Serial.printf(" %02X",b[i]);
+			if( _debug){ Serial.print(" "); Serial.print(b[i], HEX); }
 			switch(i){
 				case 0:
 					if ( b[0] != 0xAA ){
-						if( _debug)Serial.printf("--i (not a header) received %02X\n", b[i]);
+						if( _debug){ Serial.print("--i (not a header) received "); Serial.println( b[i], HEX );}
 						status = false;
 					}
 					break;
 				case 1:
 					if ( q[2] != 4 ){ 
 						if ( b[1] != 0xC5 ){
-							if( _debug)Serial.printf("--i, --i (no answer to this)received %02X\n", b[i]);
+							if( _debug){ Serial.print("--i, --i (no answer to this)received"); Serial.println( b[i], HEX ); }
 							status = false;
 						}
 					}else{
 						if ( b[1] != 0xC0 ){
-							if( _debug)Serial.printf("--i, --i (no answer to this)received %02X\n", b[i]);
+							if( _debug){ Serial.print("--i, --i (no answer to this)received "); Serial.println( b[i], HEX);}
 							status = false;
 						}
 					}
@@ -93,14 +93,14 @@ bool status=false;
 				case 2:
 					if ( q[2] != 4 ){ 
 						if ( b[2] != q[2] ){
-							if( _debug)Serial.printf("--i, --i,--i (wrong command)received %02X\n", b[i]);
+							if( _debug){ Serial.print("--i, --i,--i (wrong command)received "); Serial.println( b[i], HEX );}
 							status = false;
 						}
 					}
 					break;
 				case 8:
 					if ( crc != b[8] ){
-						if( _debug)Serial.printf("Checksum error calculated %02X <> received %02X\n", crc, b[8] );
+						if( _debug){ Serial.print("Checksum error calculated"); Serial.print( crc, HEX );Serial.print(" <> received "); Serial.println(b[8], HEX );}
 						status = false;
 					}
 					break;
@@ -116,8 +116,7 @@ bool status=false;
 		}
 		
 		if ( i < 10 ) status = false;
-		if( _debug)Serial.printf("\n------ end response, read %d bytes: %s ------\n", i, status?"ok":"error" );
-	
+		if( _debug){ Serial.println(""); Serial.print("------ end response, read "); Serial.print(i); Serial.print( " bytes: "); Serial.print( status?"ok":"error" ); Serial.println("------"); }	
 	}
 
 	
@@ -149,8 +148,11 @@ bool SDS021::workMode( uint8_t *result, uint8_t mode, uint8_t set ){
 
 	
     if( (status = txrCommand( qmode, b )) ){ 
-		if( _debug)Serial.printf("Device id %02X %02X : Mode = %s\n", b[6],b[7],b[4] == SDS021_QUERYMODE?"Querymode":"Reportingmode" );
-	
+		if( _debug){
+			char line[80];
+			sprintf( line, "Device id %02X %02X : Mode = %s\n", b[6],b[7],b[4] == SDS021_QUERYMODE?"Querymode":"Reportingmode" );
+			Serial.print ( line );
+		}
 	
 		if ( set == SDS021_SET && b[4] != mode ){
 			status = false;
@@ -178,7 +180,14 @@ bool SDS021::queryData( float *ppm10, float *ppm25 ){
     if( (status = txrCommand( qdata, b )) ){
 		*ppm25 = (float) ( b[2] + (b[3]<<8 ) ) / 10.0;
 		*ppm10 = (float) ( b[4] + (b[5]<<8 ) ) / 10.0;
-		if( _debug)Serial.printf("Data : ppm10 %4.1f ppm 2.5 %4.1f; status %d\n", *ppm10, *ppm25, status );
+		if( _debug){
+			Serial.print("Data : ppm10 ");
+			Serial.print( *ppm10, 2);
+			Serial.print(" ppm2.5 ");
+			Serial.print( *ppm25, 2);
+			Serial.print(" status : ");
+			Serial.println( status);
+		}	
 	}
 	
 	return( status );	
@@ -207,7 +216,12 @@ bool SDS021::setDeviceId( uint8_t result[2], uint8_t new_one, uint8_t new_two ){
 	
     if( (status = txrCommand( qid, b )) ){
 		if ( b[6] != new_one || b[7] != new_two ) {
-			if( _debug)Serial.printf("Failed setting devid. Asked %02X %02X, device returned %02X %02X\n", new_one, new_two, b[6], b[7]  );
+			if( _debug){
+				char line[80];
+				sprintf( line,"Failed setting devid. Asked %02X %02X, device returned %02X %02X\n", new_one, new_two, b[6], b[7]  );
+				Serial.print( line );
+			}
+		
 			status = false;
 		}else{
 			if ( _devid_one != 0xFF || _devid_two != 0xFF ){
@@ -247,15 +261,18 @@ bool SDS021::sleepWork( uint8_t *result, uint8_t mode,uint8_t set){
 
 	
     if( (status = txrCommand( qmode, b )) ){ 
-		if( _debug)Serial.printf("Device id %02X %02X : Mode = %s\n", b[6],b[7],b[4] == SDS021_WORKING?"Working":"Sleeping" );
-	
+		if( _debug){
+			char line[80];
+			sprintf(line, "Device id %02X %02X : Mode = %s\n", b[6],b[7],b[4] == SDS021_WORKING?"Working":"Sleeping" );
+			Serial.print( line );
+		}
 		*result = b[4];
 		if ( set == SDS021_SET && b[4] != mode ){
 			status = false;
 		}
 	}else{
 		if ( set == SDS021_SET && mode == SDS021_WORKING ){
-			if( _debug)Serial.printf("As usual, no answer received after ordering SDS021 to enter SDS021_WORKING mode\n" );
+			if( _debug)Serial.println("As usual, no answer received after ordering SDS021 to enter SDS021_WORKING mode" );
 		}
 	}
 	return( status );	
@@ -285,8 +302,12 @@ bool SDS021::workPeriod( uint8_t *result, uint8_t minutes,uint8_t set ){
 
 	
     if( (status = txrCommand( qperiod, b )) ){ 
-		if( _debug)Serial.printf("Device id %02X %02X : workPeriod = %s %d %s\n", b[6],b[7],b[4] == 0?"Continuous":"Interval = ",b[4] == 0?0:b[4], b[4] == 0?".":"minutes." );
-	}
+		if( _debug){
+			char line[80];
+			sprintf(line, "Device id %02X %02X : workPeriod = %s %d %s\n", b[6],b[7],b[4] == 0?"Continuous":"Interval = ",b[4] == 0?0:b[4], b[4] == 0?".":"minutes." );
+			Serial.print( line );
+			}
+	}	
 	if ( set == SDS021_SET && b[4] != minutes ){
 		status = false;
 	}
@@ -314,7 +335,11 @@ bool SDS021::firmwareVersion( uint8_t result[3] ){
 	for( uint8_t j=2; j < 17; ++j ) qfirmware[17] += qfirmware[j];
 	
     if( (status = txrCommand( qfirmware, b )) ){ 
-		if( _debug)Serial.printf("Device id %02X %02X : firmware version 20%02d-%02d-%02d\n", b[6],b[7], b[3],b[4],b[5]);
+		if ( _debug){
+				char line[80];
+				sprintf(line, "Device id %02X %02X : firmware version 20%02d-%02d-%02d\n", b[6],b[7], b[3],b[4],b[5]);
+				Serial.print( line);	
+		}		
 		result[0] = b[3]; result[1] = b[4]; result[2] = b[5];	
 	}
   return( status );
