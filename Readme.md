@@ -10,6 +10,9 @@ This library is based on the SDS011 library by ricki-z
 
 It is an attempt to implement the full serial protocol specified by Nova Fitness.
 
+<h2>** A much nicer library implementing this functionality is found here: 
+https://github.com/lewapek/sds-dust-sensors-arduino-library **</h2>
+
 Tested ok using an ESP8266 and both an SDS021 and an SDS011.
 
 The class offers the following functions:
